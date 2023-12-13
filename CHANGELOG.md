@@ -6,6 +6,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.1.1](https://github.com/PaloAltoNetworks/panos_rust_sdk/compare/v0.1.0...v0.1.1) - 2023-12-13
+
+### Other
+- release (#3)
+- update cargo.toml
+- allow publishing to simplify release process
+- Bump release-plz version
+- 1 init repository (#2)
+- Initial commit
+
 ## [0.1.0](https://github.com/PaloAltoNetworks/panos_rust_sdk/releases/tag/v0.1.0) - 2023-12-13
 
 ### Other

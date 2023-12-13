@@ -1,7 +1,7 @@
 [package]
 name = "panos_rust_sdk"
 description = "A Rust SDK for the Palo Alto Networks Operating System for Panorama and Next Generation Firewalls"
-version = "0.1.0"
+version = "0.1.1"
 edition = "2021"
 authors = [
   "abaumeister@paloaltonetworks.com"
