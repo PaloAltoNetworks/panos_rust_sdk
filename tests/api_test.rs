@@ -1,5 +1,3 @@
-use panos_rust_sdk;
-
 mod common;
 
 #[test]
