@@ -2,6 +2,8 @@
 //!     - Authentication
 //!     - Interfaces for standard API functions (op/keygen/config)
 
+mod responses;
+
 use reqwest::{Client, Proxy};
 
 // API Query Param types
@@ -65,7 +67,7 @@ impl ConnectionBuilder {
         self
     }
 
-    /// Accept bad certificates
+    /// Enables accepting invalid certificates - use with caution!
     pub fn accept_invalid_certificates(mut self) -> ConnectionBuilder {
         self.accept_invalid_certificates = true;
         self
