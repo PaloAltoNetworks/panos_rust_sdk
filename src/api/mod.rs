@@ -4,7 +4,10 @@
 
 mod responses;
 
-use reqwest::{Client, Proxy};
+use std::error::Error;
+use reqwest::Proxy;
+use url::Url;
+use crate::api::responses::keygen_response_from_request;
 
 // API Query Param types
 const PARAM_TYPE_KEYGEN: (&str, &str) = ("type", "keygen");
@@ -13,9 +16,9 @@ const PARAM_TYPE_KEYGEN: (&str, &str) = ("type", "keygen");
 /// It's recommended to use `ConnectionBuilder` to setup its parameters
 /// You can use this struct directly if you wish to pass complex settings to `reqwest::Client`.
 pub struct Connection {
-    url: String,
+    url: Url,
     api_key: String,
-    client: Client,
+    client: reqwest::blocking::Client,
 }
 
 impl Connection {
@@ -75,7 +78,7 @@ impl ConnectionBuilder {
 
     /// Create a new `Connection` object using the parameters from the builder.
     /// This function will generate an API key in PAN-OS to simplify later calls, and to init the `Connection` object.
-    pub fn build(self) {
+    pub fn build(self) -> Result<Connection, Box<dyn Error>>{
         let mut client_builder = reqwest::blocking::Client::builder();
 
         if let Some(proxy) = self.proxy {
@@ -102,8 +105,15 @@ impl ConnectionBuilder {
             &params,
         ).unwrap();
 
-        let response = client.get(url).send().unwrap();
-        println!("{:#?}", response.text());
+        let response = client.get(url.as_str()).send().unwrap();
+        let keygen_response = keygen_response_from_request(response)?;
+        Ok(
+            Connection {
+                api_key: keygen_response.result.key,
+                url,
+                client
+            }
+        )
     }
 }
 

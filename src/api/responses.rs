@@ -2,18 +2,35 @@ use quick_xml::de::from_str;
 use serde::{Deserialize, Serialize};
 use std::error::Error;
 
-/// Parses the most basic response information from a HTTP request to PAN-OS
-/// Accepts a trait to allow injection of test response types.
-fn response_from_request<T: ReturnsText>(response: T) -> Result<Response, Box<dyn Error>> {
+
+/// Returns the result of a keygen operation as a `KeyGenResponse` type.
+pub fn keygen_response_from_request<T: ReturnsText>(response: T) -> Result<KeyGenResponse, Box<dyn Error>> {
     let text = response.text();
-    let response_struct: Response = from_str(&text)?;
+    let response_struct: KeyGenResponse = from_str(&text)?;
     Ok(response_struct)
 }
 
+/// Basic PAN-OS API Response
 #[derive(Debug, Serialize, Deserialize, PartialEq)]
-struct Response {
+pub struct Response {
     #[serde(rename="@status")]
-    status: String
+    pub status: String
+}
+
+/// Keygen result
+///     - key: The generated API Key
+#[derive(Serialize, Deserialize)]
+pub struct KeyGenResult {
+    pub key: String,
+}
+
+/// Keygen response
+#[derive(Serialize, Deserialize)]
+pub struct KeyGenResponse {
+    pub result: KeyGenResult,
+
+    #[serde(flatten)]
+    pub response: Response
 }
 
 
@@ -23,7 +40,7 @@ struct TestResponse {
 }
 
 // Implemented by TestResponse AND the actual `reqwest::blocking::Response` struct
-trait ReturnsText {
+pub trait ReturnsText {
     fn text(self) -> String;
 }
 
@@ -40,15 +57,18 @@ impl ReturnsText for reqwest::blocking::Response {
 }
 
 #[test]
-fn test_response_from_request() {
+fn test_keygen_response_from_request() {
     let test_response = TestResponse {
         text: "<response status = 'success'><result><key>abcd1234</key></result></response>".to_string()
     };
 
-    match response_from_request(test_response) {
+    match keygen_response_from_request(test_response) {
         Ok(response) => {
-            assert_eq!(response.status, "success")
+            assert_eq!(response.result.key, "abcd1234");
+            assert_eq!(response.response.status, "success");
         }
-        Err(_) => {assert!(false)}
+        Err(e) => {
+            panic!("{}", e.to_string());
+        }
     }
 }
